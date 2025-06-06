@@ -22,3 +22,9 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 prql_rs-*.tar
 
+
+# Rust binary artifacts
+/native/target/
+/native/prql_native/
+
+/priv/native/

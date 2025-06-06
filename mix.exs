@@ -1,28 +1,69 @@
 defmodule PrqlRs.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/dkuku/prql_rs"
+  @upstream_url "https://github.com/PRQL/prql"
+  @book "https://prql-lang.org/book/"
+  @version "0.1.0"
+
   def project do
     [
       app: :prql_rs,
-      version: "0.1.0",
-      elixir: "~> 1.19-dev",
+      name: "prql_rs",
+      version: @version,
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      compilers: Mix.compilers(),
+      deps: deps(),
+      package: package(),
+      description:
+        "PRQL (Pipelined Relational Query Language) compiler for Elixir, powered by Rust's prqlc",
+      docs: docs(),
+      source_url: @source_url,
+      homepage_url: @source_url,
+      docs: [
+        main: "readme",
+        extras: ["README.md"]
+      ]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:rustler, "~> 0.36", runtime: false},
+      {:ex_doc, "~> 0.36", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      name: "prql_rs",
+      maintainers: ["Daniel Kukula"],
+      licenses: ["Apache-2.0"],
+      links: %{
+        "GitHub" => @source_url,
+        "Book" => @book,
+        "PRQL Upstream" => @upstream_url
+      },
+      files: ~w(lib native .formatter.exs mix.exs README* LICENSE*)
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      extras: [
+        "README.md"
+      ]
     ]
   end
 end
