@@ -132,7 +132,7 @@ defmodule PrqlTest do
     end
 
     test "with invalid target returns error" do
-      assert {:error, "Unknown dialect"} =
+      assert {:error, "Unknown dialect: :invalid_dialect"} =
                Prql.compile("from x", target: :invalid_dialect)
     end
   end

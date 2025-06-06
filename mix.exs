@@ -52,7 +52,14 @@ defmodule PrqlRs.MixProject do
         "Book" => @book,
         "PRQL Upstream" => @upstream_url
       },
-      files: ~w(lib native .formatter.exs mix.exs README* LICENSE*)
+      files: [
+        "lib",
+        "native/prql_native/src",
+        "native/prql_native/Cargo.*",
+        ".formatter.exs",
+        "mix.exs",
+        "README.md"
+      ]
     ]
   end
 
