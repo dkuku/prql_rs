@@ -1,0 +1,90 @@
+name: Precompiled NIFs
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]*'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  precompile:
+    name: Build for ${{ matrix.job.target }} (NIF ${{ matrix.nif }})
+    runs-on: ${{ matrix.job.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        nif: ["2.15"]
+        job:
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-latest, use-cross: true }
+          - { target: aarch64-apple-darwin, os: macos-latest }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-latest }
+          - { target: x86_64-pc-windows-gnu, os: windows-latest }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          target: ${{ matrix.job.target }}
+          override: true
+
+      - name: Install cross (if needed)
+        if: matrix.job.use-cross
+        run: |
+          cargo install cross --git https://github.com/cross-rs/cross
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Build NIF
+        uses: philss/rustler-precompiled-action@v2
+        with:
+          nif-version: ${{ matrix.nif }}
+          target: ${{ matrix.job.target }}
+          working-directory: native/prql_native
+          use-cross: ${{ matrix.job.use-cross || false }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: nif-${{ matrix.job.target }}-${{ matrix.nif }}
+          path: native/prql_native/priv/native/*
+          if-no-files-found: error
+
+  publish-release:
+    name: Create Release
+    needs: precompile
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/${{ env.artifact_name }}
+          asset_name: ${{ env.artifact_name }}
+          asset_content_type: application/octet-stream
