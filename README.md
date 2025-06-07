@@ -37,7 +37,21 @@ end
 # Error handling
 {:error, reason} = Prql.compile("invalid prql")
 #=> {:error, "PRQL compilation error (unexpected token)"}
+
+# Format PRQL code
+{:ok, formatted} = Prql.format("from employees | select {name, age}")
+#=> {:ok, "from employees\nselect {name, age}"}
+
+# Raises on error
+formatted = Prql.format!("from employees | select {name, age}")
+
+# Handles invalid PRQL
+{:error, reason} = Prql.format("invalid prql")
 ```
+
+### Formatting PRQL
+
+You can format PRQL code using the `format/1` and `format!/1` functions. These functions take a PRQL query string and return a formatted version of the query with consistent indentation and line breaks.
 
 ### Options
 

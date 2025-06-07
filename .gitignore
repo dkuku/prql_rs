@@ -24,7 +24,6 @@ prql_rs-*.tar
 
 
 # Rust binary artifacts
-/native/target/
-/native/prql_native/
+/native/prql_native/target
 
 /priv/native/

@@ -1,0 +1,17 @@
+[package]
+name = "prql_native"
+version = "0.1.0"
+authors = []
+edition = "2021"
+description = "Rustler wrapper for the prqlc compiler"
+license = "Apache-2.0"
+repository = "https://github.com/dkuku/prql_rs"
+
+[lib]
+name = "prql_native"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.36"
+prqlc = "0.13"
+thiserror = "1.0"

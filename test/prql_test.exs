@@ -136,4 +136,60 @@ defmodule PrqlTest do
                Prql.compile("from x", target: :invalid_dialect)
     end
   end
+
+  describe "format/1" do
+    test "formats a simple PRQL query" do
+      prql = "from employees | select {name, age}"
+
+      expected = """
+      from employees
+      select {name, age}
+      """
+
+      assert {:ok, ^expected} = Prql.format(prql)
+    end
+
+    test "handles complex PRQL queries" do
+      prql =
+        "from employees | filter department == \"Engineering\" | group {title} (aggregate {avg_salary = average salary})"
+
+      expected =
+        """
+        from employees
+        filter department == "Engineering"
+        group {title} (aggregate {
+          avg_salary = average salary,
+        })
+        """
+
+      assert {:ok, expected} == Prql.format(prql)
+    end
+
+    test "returns error for invalid PRQL syntax" do
+      assert {:error, _reason} = Prql.format("this is not valid prql")
+    end
+
+    test "handles empty input" do
+      assert {:ok, ""} = Prql.format("")
+    end
+  end
+
+  describe "format!/1" do
+    test "returns formatted PRQL when valid" do
+      prql = "from employees | select {name, age}"
+
+      expected = """
+      from employees
+      select {name, age}
+      """
+
+      assert ^expected = Prql.format!(prql)
+    end
+
+    test "raises an exception for invalid PRQL" do
+      assert_raise RuntimeError, fn ->
+        Prql.format!("invalid prql")
+      end
+    end
+  end
 end
