@@ -4,7 +4,7 @@ defmodule PrqlRs.MixProject do
   @source_url "https://github.com/dkuku/prql_rs"
   @upstream_url "https://github.com/PRQL/prql"
   @book "https://prql-lang.org/book/"
-  @version "0.1.0"
+  @version "0.1.1"
 
   def project do
     [
@@ -36,7 +36,8 @@ defmodule PrqlRs.MixProject do
 
   defp deps do
     [
-      {:rustler, "~> 0.36", runtime: false},
+      {:rustler, ">= 0.0.0", optional: true},
+      {:rustler_precompiled, "~> 0.7"},
       {:ex_doc, "~> 0.36", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
@@ -54,8 +55,10 @@ defmodule PrqlRs.MixProject do
       },
       files: [
         "lib",
+        "native/prql_native/.cargo",
         "native/prql_native/src",
-        "native/prql_native/Cargo.*",
+        "native/prql_native/Cargo*",
+        "checksum-*.exs",
         ".formatter.exs",
         "mix.exs",
         "README.md"

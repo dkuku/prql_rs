@@ -1,7 +1,15 @@
 defmodule Prql.Native do
   @moduledoc false
+  
+  version = Mix.Project.config()[:version]
 
-  use Rustler, otp_app: :prql_rs, crate: "prql_native"
+  use RustlerPrecompiled,
+    otp_app: :prql_rs,
+    crate: "prql_native",
+    base_url:
+      "https://github.com/dkuku/prql_rs/releases/download/v#{version}",
+    force_build: System.get_env("RUSTLER_PRECOMPILATION_BUILD") in ["1", "true"],
+    version: version
 
   @doc false
   @spec compile(String.t(), keyword()) :: {:ok, String.t()} | {:error, String.t()}
@@ -15,11 +23,7 @@ defmodule Prql.Native do
     format_nif(prql_query)
   end
 
-  defp compile_nif(_prql_query, _options) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
-
-  defp format_nif(_prql_query) do
-    :erlang.nif_error(:nif_not_loaded)
-  end
+  # These will be overridden by the NIF when loaded
+  defp compile_nif(_prql_query, _options), do: :erlang.nif_error(:nif_not_loaded)
+  defp format_nif(_prql_query), do: :erlang.nif_error(:nif_not_loaded)
 end
