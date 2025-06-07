@@ -12,6 +12,14 @@ name = "prql_native"
 crate-type = ["cdylib"]
 
 [dependencies]
-rustler = "0.36"
-prqlc = "0.13"
-thiserror = "1.0"
+rustler = { version = "0.36", default-features = false, features = ["nif_version_2_15"] }
+prqlc = { version = "0.13", default-features = false }
+thiserror = { version = "1.0", default-features = false }
+
+[profile.release]
+# Optimize for size
+opt-level = "z"  # Optimize for size
+lto = true       # Enable link-time optimization
+codegen-units = 1 # Slower compilation but better optimization
+strip = true     # Strip debug symbols
+panic = "abort"  # Don't generate unwinding info
